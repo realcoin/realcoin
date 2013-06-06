@@ -14,7 +14,7 @@ CONFIG += no_include_pwd
 # Dependency library locations can be customized with:
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
-BOOST_LIB_SUFFIX=-mgw47-mt-sd-1_53
+BOOST_LIB_SUFFIX=-mgw46-mt-1_53
 BOOST_INCLUDE_PATH=E:\realcoin-dev\deps\boost_1_53_0
 BOOST_LIB_PATH=E:\realcoin-dev\deps\boost_1_53_0\stage\lib
 BDB_INCLUDE_PATH=E:\realcoin-dev\deps\db-4.8.30.NC\build_unix

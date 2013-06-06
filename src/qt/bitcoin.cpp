@@ -116,6 +116,7 @@ static void handleRunawayException(std::exception *e)
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char *argv[])
 {
+    printf("enter qt main function");
 // TODO: implement URI support on the Mac.
 #if !defined(MAC_OSX)
     // Do this early as we don't want to bother initializing if we are just calling IPC
@@ -150,8 +151,14 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
 
+    printf("start init resource\n");
+
     Q_INIT_RESOURCE(bitcoin);
+    printf("finish init resource\n");
+
     QApplication app(argc, argv);
+
+    printf("qt app started\n");
 
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
