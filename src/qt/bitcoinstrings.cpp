@@ -19,7 +19,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Acceptable ciphers (default: TLSv1+HIGH:!SSLv2:!aNULL:!eNULL:!AH:!3DES:"
 "@STRENGTH)"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
-"Cannot obtain a lock on data directory %s.  realcoin is probably already "
+"Cannot obtain a lock on data directory %s.  Realcoin is probably already "
 "running."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Detach block and address databases. Increases shutdown time (default: 0)"),
@@ -59,8 +59,8 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Allow DNS lookups for -addnode, -seednode and
 QT_TRANSLATE_NOOP("bitcoin-core", "Allow JSON-RPC connections from specified IP address"),
 QT_TRANSLATE_NOOP("bitcoin-core", "An error occured while setting up the RPC port %i for listening: %s"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Bind to given address. Use [host]:port notation for IPv6"),
-QT_TRANSLATE_NOOP("bitcoin-core", "realcoin version"),
-QT_TRANSLATE_NOOP("bitcoin-core", "realcoin"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Realcoin version"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Realcoin"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Cannot downgrade wallet"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Cannot initialize keypool"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Cannot resolve -bind address: '%s'"),
