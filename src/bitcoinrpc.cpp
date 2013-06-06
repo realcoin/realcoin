@@ -43,7 +43,7 @@ void ThreadRPCServer3(void* parg);
 
 static inline unsigned short GetDefaultRPCPort()
 {
-    return GetBoolArg("-testnet", false) ? 18344 : 8344;
+    return GetBoolArg("-testnet", false) ? 30002 : 20002;
 }
 
 Object JSONRPCError(int code, const string& message)
@@ -183,12 +183,12 @@ Value stop(const Array& params, bool fHelp)
         throw runtime_error(
             "stop <detach>\n"
             "<detach> is true or false to detach the database or not for this stop only\n"
-            "Stop YaCoin server (and possibly override the detachdb config value).");
+            "Stop DotCoin server (and possibly override the detachdb config value).");
     // Shutdown will take long enough that the response should get back
     if (params.size() > 0)
         bitdb.SetDetach(params[0].get_bool());
     StartShutdown();
-    return "YaCoin server stopping";
+    return "DotCoin server stopping";
 }
 
 
@@ -217,12 +217,12 @@ static const CRPCCommand vRPCCommands[] =
     { "getaccountaddress",      &getaccountaddress,      true,   false },
     { "setaccount",             &setaccount,             true,   false },
     { "getaccount",             &getaccount,             false,  false },
-    { "getaddressesbyaccount",  &getaddressesbyaccount,  true,   false },
+    { "getaddressesbdtccount",  &getaddressesbdtccount,  true,   false },
     { "sendtoaddress",          &sendtoaddress,          false,  false },
     { "getreceivedbyaddress",   &getreceivedbyaddress,   false,  false },
-    { "getreceivedbyaccount",   &getreceivedbyaccount,   false,  false },
+    { "getreceivedbdtccount",   &getreceivedbdtccount,   false,  false },
     { "listreceivedbyaddress",  &listreceivedbyaddress,  false,  false },
-    { "listreceivedbyaccount",  &listreceivedbyaccount,  false,  false },
+    { "listreceivedbdtccount",  &listreceivedbdtccount,  false,  false },
     { "backupwallet",           &backupwallet,           true,   false },
     { "keypoolrefill",          &keypoolrefill,          true,   false },
     { "walletpassphrase",       &walletpassphrase,       true,   false },
@@ -300,7 +300,7 @@ string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeader
 {
     ostringstream s;
     s << "POST / HTTP/1.1\r\n"
-      << "User-Agent: yacoin-json-rpc/" << FormatFullVersion() << "\r\n"
+      << "User-Agent: dotcoin-json-rpc/" << FormatFullVersion() << "\r\n"
       << "Host: 127.0.0.1\r\n"
       << "Content-Type: application/json\r\n"
       << "Content-Length: " << strMsg.size() << "\r\n"
@@ -331,7 +331,7 @@ static string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
     if (nStatus == HTTP_UNAUTHORIZED)
         return strprintf("HTTP/1.0 401 Authorization Required\r\n"
             "Date: %s\r\n"
-            "Server: yacoin-json-rpc/%s\r\n"
+            "Server: dotcoin-json-rpc/%s\r\n"
             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
             "Content-Type: text/html\r\n"
             "Content-Length: 296\r\n"
@@ -358,7 +358,7 @@ static string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
             "Connection: %s\r\n"
             "Content-Length: %"PRIszu"\r\n"
             "Content-Type: application/json\r\n"
-            "Server: yacoin-json-rpc/%s\r\n"
+            "Server: dotcoin-json-rpc/%s\r\n"
             "\r\n"
             "%s",
         nStatus,
@@ -1148,11 +1148,11 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "sendtoaddress"          && n > 1) ConvertTo<double>(params[1]);
     if (strMethod == "settxfee"               && n > 0) ConvertTo<double>(params[0]);
     if (strMethod == "getreceivedbyaddress"   && n > 1) ConvertTo<boost::int64_t>(params[1]);
-    if (strMethod == "getreceivedbyaccount"   && n > 1) ConvertTo<boost::int64_t>(params[1]);
+    if (strMethod == "getreceivedbdtccount"   && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "listreceivedbyaddress"  && n > 0) ConvertTo<boost::int64_t>(params[0]);
     if (strMethod == "listreceivedbyaddress"  && n > 1) ConvertTo<bool>(params[1]);
-    if (strMethod == "listreceivedbyaccount"  && n > 0) ConvertTo<boost::int64_t>(params[0]);
-    if (strMethod == "listreceivedbyaccount"  && n > 1) ConvertTo<bool>(params[1]);
+    if (strMethod == "listreceivedbdtccount"  && n > 0) ConvertTo<boost::int64_t>(params[0]);
+    if (strMethod == "listreceivedbdtccount"  && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "getbalance"             && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "getblock"               && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "getblockbynumber"       && n > 0) ConvertTo<boost::int64_t>(params[0]);

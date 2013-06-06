@@ -26,5 +26,7 @@ unsigned int scanhash_scrypt(block_header *pdata,
     void *result, block_header *res_header, unsigned char Nfactor);
 
 void scrypt_hash(const void* input, size_t inputlen, uint32_t *res, unsigned char Nfactor);
+void scrypt_hash_genesis_block(const void* input, size_t inputlen, uint32_t *res, void *scratchpad);
+
 
 #endif // SCRYPT_MINE_H

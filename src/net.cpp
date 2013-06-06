@@ -25,7 +25,16 @@
 using namespace std;
 using namespace boost;
 
-static const int MAX_OUTBOUND_CONNECTIONS = 8;
+
+// WM - static const int MAX_OUTBOUND_CONNECTIONS = 8;
+#define DEFAULT_MAX_CONNECTIONS         125    // WM - Default value for -maxconnections= parameter.
+#define MIN_CONNECTIONS                 8      // WM - Lowest value we allow for -maxconnections= (never ever set less than 2!).
+#define MAX_CONNECTIONS                 1000   // WM - Max allowed value for -maxconnections= parameter.  Getting kinda excessive, eh?
+
+#define DEFAULT_OUTBOUND_CONNECTIONS    8      // WM - Reasonable default of 8 outbound connections for -maxoutbound= parameter.
+#define MIN_OUTBOUND_CONNECTIONS        4      // WM - Lowest we allow for -maxoutbound= parameter shall be 4 connections (never ever set below 2).
+#define MAX_OUTBOUND_CONNECTIONS        100    // WM - This no longer means what it used to.  Outbound conn count now runtime configurable.
+
 
 void ThreadMessageHandler2(void* parg);
 void ThreadSocketHandler2(void* parg);
@@ -86,6 +95,63 @@ unsigned short GetListenPort()
 {
     return (unsigned short)(GetArg("-port", GetDefaultPort()));
 }
+
+
+
+//
+// int GetMaxConnections( void )
+//
+//    WM - Function to determine maximum allowed in+out connections.
+//
+//    Parameters: None
+//    Returns: Maximum connections allowed (int)
+//
+
+int GetMaxConnections()
+{
+    int count;
+
+    // Config'eth away..
+    count = GetArg( "-maxconnections", DEFAULT_MAX_CONNECTIONS );
+    
+    // Ensure some level of sanity amount the max connection count.
+    count = max( count, MIN_CONNECTIONS );
+    count = min( count, MAX_CONNECTIONS );
+    
+    //printf( "GetMaxConnections() = %d\n", count );
+
+    return count;
+}
+
+
+
+//
+// int GetMaxOutboundConnections( void )
+//
+//    WM - Function to determine maximum allowed outbound connections.
+//
+//    Parameters: None
+//    Returns: Maximum outbound connections allowed (int)
+//
+
+int GetMaxOutboundConnections()
+{
+    int count;
+
+    // What sayeth the config parameters?
+    count = GetArg( "-maxoutbound", DEFAULT_OUTBOUND_CONNECTIONS );
+    
+    // Did someone set it too low or too high?  Shame, shame..
+    count = max( count, MIN_OUTBOUND_CONNECTIONS );
+    count = min( count, MAX_OUTBOUND_CONNECTIONS );
+    count = min( count, GetMaxConnections() );
+
+    //printf( "GetMaxOutboundConnections() = %d\n", count );
+    
+    return count;
+}
+
+
 
 void CNode::PushGetBlocks(CBlockIndex* pindexBegin, uint256 hashEnd)
 {
@@ -830,7 +896,8 @@ void ThreadSocketHandler2(void* parg)
                 if (nErr != WSAEWOULDBLOCK)
                     printf("socket error accept failed: %d\n", nErr);
             }
-            else if (nInbound >= GetArg("-maxconnections", 125) - MAX_OUTBOUND_CONNECTIONS)
+// WM            else if (nInbound >= GetArg("-maxconnections", DEFAULT_MAX_CONNECTIONS ) - /* WM - MAX_OUTBOUND_CONNECTIONS */ GetMaxOutboundConnections() )
+            else if ( nInbound >= GetMaxConnections() - GetMaxOutboundConnections() )
             {
                 {
                     LOCK(cs_setservAddNodeAddresses);
@@ -1061,7 +1128,7 @@ void ThreadMapPort2(void* parg)
             }
         }
 
-        string strDesc = "YaCoin " + FormatFullVersion();
+        string strDesc = "DotCoin " + FormatFullVersion();
 #ifndef UPNPDISCOVER_SUCCESS
         /* miniupnpc 1.5 */
         r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
@@ -1149,7 +1216,7 @@ void MapPort()
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
-    //{"yacoin.org", "seed.novacoin.su"},
+    //{"dotcoin.co"},
 };
 
 void ThreadDNSAddressSeed(void* parg)
@@ -1182,7 +1249,7 @@ void ThreadDNSAddressSeed2(void* parg)
     {
         printf("Loading addresses from DNS seeds (could take a while)\n");
 
-        for (unsigned int seed_idx = 0; seed_idx < ARRAYLEN(strDNSSeed); seed_idx++) {
+        for( int seed_idx = 0; seed_idx < (int) ARRAYLEN( strDNSSeed ); seed_idx++ ) {
             if (HaveNameProxy()) {
                 AddOneShot(strDNSSeed[seed_idx][1]);
             } else {
@@ -1742,7 +1809,7 @@ bool BindListenPort(const CService &addrBind, string& strError)
     {
         int nErr = WSAGetLastError();
         if (nErr == WSAEADDRINUSE)
-            strError = strprintf(_("Unable to bind to %s on this computer. YaCoin is probably already running."), addrBind.ToString().c_str());
+            strError = strprintf(_("Unable to bind to %s on this computer. DotCoin is probably already running."), addrBind.ToString().c_str());
         else
             strError = strprintf(_("Unable to bind to %s on this computer (bind returned error %d, %s)"), addrBind.ToString().c_str(), nErr, strerror(nErr));
         printf("%s\n", strError.c_str());
@@ -1829,7 +1896,7 @@ void StartNode(void* parg)
 
     if (semOutbound == NULL) {
         // initialize semaphore
-        int nMaxOutbound = min(MAX_OUTBOUND_CONNECTIONS, (int)GetArg("-maxconnections", 125));
+        int nMaxOutbound = min( GetMaxOutboundConnections(), GetMaxConnections() );
         semOutbound = new CSemaphore(nMaxOutbound);
     }
 
@@ -1898,7 +1965,7 @@ bool StopNode()
     nTransactionsUpdated++;
     int64 nStart = GetTime();
     if (semOutbound)
-        for (int i=0; i<MAX_OUTBOUND_CONNECTIONS; i++)
+        for( int i = 0; i < GetMaxOutboundConnections(); i++ )
             semOutbound->post();
     do
     {

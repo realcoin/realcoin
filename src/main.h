@@ -32,8 +32,8 @@ static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 static const unsigned int MAX_INV_SZ = 50000;
 static const int64 MIN_TX_FEE = CENT;
 static const int64 MIN_RELAY_TX_FEE = CENT;
-static const int64 MAX_MONEY = 2000000000 * COIN;
-static const int64 MAX_MINT_PROOF_OF_WORK = 100 * COIN;
+static const int64 MAX_MONEY = 10000000000 * COIN;
+static const int64 MAX_MINT_PROOF_OF_WORK = 200 * COIN;
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 // Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp.
@@ -45,8 +45,9 @@ static const int fHaveUPnP = true;
 static const int fHaveUPnP = false;
 #endif
 
-static const uint256 hashGenesisBlockOfficial("0x0000060fc90618113cde415ead019a1052a9abc43afcccff38608ff8751353e5");
-static const uint256 hashGenesisBlockTestNet("0xfe20c2c2fc02b36d2473e1f51dba1fb455d41ff42966e2a4edabb98fdd7107e6");
+static const uint256 hashGenesisBlockOfficial("0000060fc90618113cde415ead019a1052a9abc43afcccff38608ff8751353e5");
+static const uint256 hashGenesisBlockTestNet("0x00000a060336cbb72fe969666d337b87198b1add2abaa59cca226820b32933a4");
+
 
 static const int64 nMaxClockDrift = 2 * 60 * 60;        // two hours
 
@@ -65,6 +66,7 @@ extern CBlockIndex* pindexGenesisBlock;
 extern unsigned int nStakeMinAge;
 extern int nCoinbaseMaturity;
 extern int nBestHeight;
+extern int64 nBestHeightTime;
 extern CBigNum bnBestChainTrust;
 extern CBigNum bnBestInvalidTrust;
 extern uint256 hashBestChain;
@@ -124,7 +126,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake);
 void ResendWalletTransactions();
 
-// yacoin: calculate Nfactor using timestamp
+// dotcoin: calculate Nfactor using timestamp
 unsigned char GetNfactor(int64 nTimestamp);
 
 
@@ -926,7 +928,7 @@ public:
     // ppcoin: entropy bit for stake modifier if chosen by modifier
     unsigned int GetStakeEntropyBit(unsigned int nHeight) const
     {
-        // Protocol switch to support p2pool at novacoin block #9689
+        // Protocol switch to support p2pool at dotcoin block #9689
 //        if (nHeight >= 9689)
         {
             // Take last bit of block hash as entropy bit
@@ -935,7 +937,7 @@ public:
                 printf("GetStakeEntropyBit: nHeight=%u hashBlock=%s nEntropyBit=%u\n", nHeight, GetHash().ToString().c_str(), nEntropyBit);
             return nEntropyBit;
         }
-/*        // Before novacoin block #9689 - old protocol
+/*        // Before dotcoin block #9689 - old protocol
         uint160 hashSig = Hash160(vchBlockSig);
         if (fDebug && GetBoolArg("-printstakemodifier"))
             printf("GetStakeEntropyBit: hashSig=%s", hashSig.ToString().c_str());

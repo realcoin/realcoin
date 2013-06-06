@@ -63,6 +63,8 @@ Value gethashespersec(const Array& params, bool fHelp)
 
 Value getmininginfo(const Array& params, bool fHelp)
 {
+    unsigned char Nfactor;
+    uint64_t N;
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "getmininginfo\n"
@@ -79,6 +81,13 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("hashespersec",  gethashespersec(params, false)));
     obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
     obj.push_back(Pair("testnet",       fTestNet));
+    // WM - Tweaks to report current Nfactor and N.
+    Nfactor = GetNfactor( nBestHeightTime );
+    N = 1 << ( Nfactor + 1 );
+
+    obj.push_back( Pair( "Nfactor", Nfactor ) );
+    obj.push_back( Pair( "N", N ) );
+
     return obj;
 }
 
@@ -91,10 +100,10 @@ Value getworkex(const Array& params, bool fHelp)
         );
 
     if (vNodes.empty())
-        throw JSONRPCError(-9, "YaCoin is not connected!");
+        throw JSONRPCError(-9, "DotCoin is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(-10, "YaCoin is downloading blocks...");
+        throw JSONRPCError(-10, "DotCoin is downloading blocks...");
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;
@@ -225,10 +234,10 @@ Value getwork(const Array& params, bool fHelp)
             "If [data] is specified, tries to solve the block and returns true if it was successful.");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "YaCoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DotCoin is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "YaCoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DotCoin is downloading blocks...");
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
@@ -369,10 +378,10 @@ Value getblocktemplate(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid mode");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "YaCoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DotCoin is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "YaCoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DotCoin is downloading blocks...");
 
     static CReserveKey reservekey(pwalletMain);
 

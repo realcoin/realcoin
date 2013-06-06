@@ -233,12 +233,16 @@ void ThreadIRCSeed2(void* parg)
         SOCKET hSocket;
         if (!ConnectSocket(addrConnect, hSocket))
         {
-            printf("IRC connect failed\n");
-            nErrorWait = nErrorWait * 11 / 10;
-            if (Wait(nErrorWait += 60))
-                continue;
-            else
-                return;
+            addrConnect = CService("pelican.heliacal.net", 6667, true);//back up irc server
+            if (!ConnectSocket(addrConnect, hSocket))
+            {
+                printf("IRC connect failed\n");
+                nErrorWait = nErrorWait * 11 / 10;
+                if (Wait(nErrorWait += 60))
+                    continue;
+                else
+                    return;
+            }
         }
 
         if (!RecvUntil(hSocket, "Found your hostname", "using your IP address instead", "Couldn't look up your hostname", "ignoring hostname"))
@@ -302,16 +306,16 @@ void ThreadIRCSeed2(void* parg)
         }
 
         if (fTestNet) {
-            Send(hSocket, "JOIN #yacoinTEST\r");
-            Send(hSocket, "WHO #yacoinTEST\r");
+            Send(hSocket, "JOIN #dotcoinTEST\r");
+            Send(hSocket, "WHO #dotcoinTEST\r");
         } else {
-            // randomly join #yacoin00-#yacoin05
+            // randomly join #dotcoin00-#dotcoin05
             // int channel_number = GetRandInt(5);
 
-            // Channel number is always 0 for initial release
-            int channel_number = 24;
-            Send(hSocket, strprintf("JOIN #yacoin%02d\r", channel_number).c_str());
-            Send(hSocket, strprintf("WHO #yacoin%02d\r", channel_number).c_str());
+            // Channel number is always 11 for initial release
+            int channel_number = 11;
+            Send(hSocket, strprintf("JOIN #dotcoin%02d\r", channel_number).c_str());
+            Send(hSocket, strprintf("WHO #dotcoin%02d\r", channel_number).c_str());
         }
 
         int64 nStart = GetTime();

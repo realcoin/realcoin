@@ -37,13 +37,14 @@ static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20);
 static CBigNum bnProofOfStakeLimit(~uint256(0) >> 24);
 static CBigNum bnProofOfStakeHardLimit(~uint256(0) >> 30);
 static CBigNum bnInitialHashTarget(~uint256(0) >> 20);
-unsigned int nStakeMinAge = 60 * 60 * 24 * 30; // minimum age for coin age
-unsigned int nStakeMaxAge = 60 * 60 * 24 * 90; // stake age of full weight
+unsigned int nStakeMinAge = 60 * 60 * 24 * 7; // minimum age for coin age
+unsigned int nStakeMaxAge = 60 * 60 * 24 * 30; // stake age of full weight
 unsigned int nStakeTargetSpacing = 1 * 60; // DIFF: 1-minute block spacing
 int64 nChainStartTime = 1367991200;
 int nCoinbaseMaturity = 500;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
+int64 nBestHeightTime = 0;   // WM - Keep track of timestamp of block at best height.
 CBigNum bnBestChainTrust = 0;
 CBigNum bnBestInvalidTrust = 0;
 uint256 hashBestChain = 0;
@@ -63,7 +64,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "YaCoin Signed Message:\n";
+const string strMessageMagic = "DotCoin Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -947,7 +948,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
     return pblockOrphan->hashPrevBlock;
 }
 
-// yacoin: increasing Nfactor gradually
+// dotcoin: increasing Nfactor gradually
 const unsigned char minNfactor = 4;
 const unsigned char maxNfactor = 30;
 
@@ -970,7 +971,7 @@ unsigned char GetNfactor(int64 nTimestamp) {
     if (n < 0) n = 0;
 
     if (n > 255)
-        printf("GetNfactor(%d) - something wrong(n == %d)\n", nTimestamp, n);
+        printf("GetNfactor(%lld) - something wrong(n == %d)\n", nTimestamp, n);
 
     unsigned char N = (unsigned char)n;
     //printf("GetNfactor: %d -> %d %d : %d / %d\n", nTimestamp - nChainStartTime, l, s, n, min(max(N, minNfactor), maxNfactor));
@@ -1530,8 +1531,8 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // Now that the whole chain is irreversibly beyond that time it is applied to all blocks except the
     // two in the chain that violate it. This prevents exploiting the issue against nodes in their
     // initial block download.
-    bool fEnforceBIP30 = true; // Always active in NovaCoin
-    bool fStrictPayToScriptHash = true; // Always active in NovaCoin
+    bool fEnforceBIP30 = true; // Always active in DotCoin
+    bool fStrictPayToScriptHash = true; // Always active in DotCoin
 
     //// issue here: it doesn't know the version
     unsigned int nTxPos;
@@ -2432,7 +2433,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
         string strMessage = _("Warning: Disk space is low!");
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
-        uiInterface.ThreadSafeMessageBox(strMessage, "YaCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
+        uiInterface.ThreadSafeMessageBox(strMessage, "DotCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
         StartShutdown();
         return false;
     }
@@ -2540,15 +2541,56 @@ bool LoadBlockIndex(bool fAllowNew)
         block.nTime    = nChainStartTime + 20;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
         block.nNonce   = 127357;
+        //block.nNonce   = 0;
+
+        // If genesis block hash does not match, then generate new genesis hash.
+        if (false && block.GetHash() != hashGenesisBlock)//change false to true to generate the genesis block
+        {
+            printf("Searching for genesis block...\n");
+            // This will figure out a valid hash and Nonce if you're
+            // creating a different genesis block:
+            uint256 hashTarget = CBigNum().SetCompact(block.nBits).getuint256();
+            uint256 thash;
+
+            loop
+            {
+                void * scratchbuff = scrypt_buffer_alloc();
+                scrypt_hash_genesis_block(CVOIDBEGIN(block.nVersion), sizeof(block_header),UINTBEGIN(thash), scratchbuff);
+                scrypt_buffer_free(scratchbuff);
+                if (thash <= hashTarget)
+                    break;
+                if ((block.nNonce & 0xFFFF) == 0)
+                {
+                    printf("nonce %08X: hash = %s (target = %s)\n", block.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
+                }
+                ++block.nNonce;
+                if (block.nNonce == 0)
+                {
+                    printf("NONCE WRAPPED, incrementing time\n");
+                    ++block.nTime;
+                }
+            }
+            printf("block.nTime = %u \n", block.nTime);
+            printf("block.nNonce = %u \n", block.nNonce);
+            printf("block.GetHash = %s\n", block.GetHash().ToString().c_str());
+            printf("block.hashMerkleRoot == %s\n", block.hashMerkleRoot.ToString().c_str());
+        }
+
+
 
         //// debug print
+        printf("block.nTime = %u \n", block.nTime);
+        printf("block.nNonce = %u \n", block.nNonce);
+        printf("hashGenesisBlock == %s\n", hashGenesisBlock.ToString().c_str());
         printf("block.GetHash() == %s\n", block.GetHash().ToString().c_str());
         printf("block.hashMerkleRoot == %s\n", block.hashMerkleRoot.ToString().c_str());
+        //assert(block.hashMerkleRoot == uint256("0x678b76419ff06676a591d3fa9d57d7f7b26d8021b7cc69dde925f39d4cf2244f"));
         assert(block.hashMerkleRoot == uint256("0x678b76419ff06676a591d3fa9d57d7f7b26d8021b7cc69dde925f39d4cf2244f"));
         block.print();
 
         assert(block.GetHash() == hashGenesisBlock);
         assert(block.CheckBlock());
+
 
         // Start new block file
         unsigned int nFile;
@@ -2845,7 +2887,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-unsigned char pchMessageStart[4] = { 0xd9, 0xe6, 0xe7, 0xe5 };
+unsigned char pchMessageStart[4] = { 0xe1, 0xe2, 0xe3, 0xe4 };
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {

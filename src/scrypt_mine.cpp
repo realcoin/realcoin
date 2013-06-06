@@ -51,7 +51,7 @@ extern uint32_t nTransactionsUpdated;
 #if defined(__x86_64__)
 
 //#define SCRYPT_3WAY
-// yacoin: using scrypt-jane instead
+// dotcoin: using scrypt-jane instead
 #define SCRYPT_BUFFER_SIZE (3 * 131072 + 63)
 
 extern "C" int scrypt_best_throughput();
@@ -94,11 +94,18 @@ static void scrypt(const void* input, size_t inputlen, uint32_t *res, void *scra
     PBKDF2_SHA256((const uint8_t*)input, inputlen, (uint8_t *)X, 128, 1, (uint8_t*)res, 32);
 }
 
+//scrypt_hash(CVOIDBEGIN(block.nVersion), sizeof(block_header),UINTBEGIN(thash), (unsigned char*)scratchbuff);
 void scrypt_hash(const void* input, size_t inputlen, uint32_t *res, unsigned char Nfactor)
 {
     return scrypt((const unsigned char*)input, inputlen,
                   (const unsigned char*)input, inputlen,
                   Nfactor, 0, 0, (unsigned char*)res, 32);
+}
+
+
+void scrypt_hash_genesis_block(const void* input, size_t inputlen, uint32_t *res, void *scratchpad)
+{
+    return scrypt(input, inputlen, res, scratchpad);
 }
 
 #ifdef SCRYPT_3WAY

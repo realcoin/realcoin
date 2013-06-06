@@ -2,21 +2,18 @@
 # Distributed under the MIT/X11 software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-USE_UPNP:=-
+USE_UPNP:=1
 USE_IPV6:=1
 
-BOOST_SUFFIX?=-mgw47-mt-sd-1_53
-
 INCLUDEPATHS= \
- -I"C:\realcoin-dev\deps\boost_1_53_0" \
- -I"C:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
- -I"C:\realcoin-dev\deps\openssl-1.0.1e\include"
+ -I"E:\realcoin-dev\deps\boost_1_53_0" \
+ -I"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
+ -I"E:\realcoin-dev\deps\openssl-1.0.1e\include"
 
 LIBPATHS= \
- -L"C:\realcoin-dev\deps\boost_1_53_0\stage\lib" \
- -L"C:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
- -L"C:\realcoin-dev\deps\openssl-1.0.1e"
-
+ -L"E:\realcoin-dev\deps\boost_1_53_0\stage\lib" \
+ -L"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
+ -L"E:\realcoin-dev\deps\openssl-1.0.1e"
 
 LIBS= \
  -l boost_system-mgw47-mt-s-1_53 \
@@ -28,11 +25,10 @@ LIBS= \
  -l ssl \
  -l crypto
 
-
 DEFS=-DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE
 DEBUGFLAGS=-g
 CFLAGS=-mthreads -O2 -msse2 -w -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
-LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -Wl,--large-address-aware -static
+LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat
 
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
@@ -40,8 +36,8 @@ ifndef USE_UPNP
 	override USE_UPNP = -
 endif
 ifneq (${USE_UPNP}, -)
- INCLUDEPATHS += -I"C:\miniupnpc-1.6-mgw"
- LIBPATHS += -L"C:\miniupnpc-1.6-mgw"
+ INCLUDEPATHS += -I"C:\miniupnpc-1.8-mgw"
+ LIBPATHS += -L"C:\miniupnpc-1.8-mgw"
  LIBS += -l miniupnpc -l iphlpapi
  DEFS += -DSTATICLIB -DUSE_UPNP=$(USE_UPNP)
 endif
@@ -89,10 +85,10 @@ OBJS= \
     obj/scrypt-x86.o \
     obj/scrypt-x86_64.o
 
-all: yacoind.exe
+all: dotcoind.exe
 
-test check: test_yacoin.exe FORCE
-	test_yacoin.exe
+test check: test_dotcoin.exe FORCE
+	test_dotcoin.exe
 
 obj/%.o: %.cpp $(HEADERS)
 	g++ -c $(CFLAGS) -o $@ $<
@@ -103,7 +99,7 @@ obj/scrypt-x86.o: scrypt-x86.S
 obj/scrypt-x86_64.o: scrypt-x86_64.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
-yacoind.exe: $(OBJS:obj/%=obj/%)
+dotcoind.exe: $(OBJS:obj/%=obj/%)
 	g++ $(CFLAGS) $(LDFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 
 TESTOBJS := $(patsubst test/%.cpp,obj-test/%.o,$(wildcard test/*.cpp))
@@ -115,7 +111,7 @@ test_bitcoin.exe: $(TESTOBJS) $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
 	g++ $(CFLAGS) $(LDFLAGS) -o $@ $(LIBPATHS) $^ -lboost_unit_test_framework $(LIBS)
 
 clean:
-	-del /Q yacoind test_yacoin
+	-del /Q dotcoind test_dotcoin
 	-del /Q obj\*
 	-del /Q obj-test\*
 
