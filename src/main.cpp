@@ -1,10 +1,10 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto.
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2011-2013 digitalcoin Developers.
+// Copyright (c) 2011-2013 realcoin Developers.
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-// Listen port: 7999
-// RPC Port: 7998
+// Listen port: 20001
+// RPC Port: 20002
 // Block Time: 20 seconds
 // Confirmations: 5
 // Difficulty: Retarget every 6 hours
@@ -36,8 +36,8 @@ CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
-uint256 hashGenesisBlock("0x5e039e1ca1dbf128973bf6cff98169e40a1b194c3b91463ab74956f413b2f9c8");
-static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // digitalcoin: starting difficulty is 1 / 2^12
+uint256 hashGenesisBlock("0xd6b2bcbb7ce7d97f531c7e9b8cd4360b9d0e552c21ba82862cfe6bb28acd0809");
+static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // realcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 CBigNum bnBestChainWork = 0;
@@ -57,7 +57,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "digitalcoin Signed Message:\n";
+const string strMessageMagic = "realcoin Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -835,11 +835,11 @@ uint256 static GetOrphanRoot(const CBlock* pblock)
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
-    int64 nSubsidy = 20 * COIN;
+    int64 nSubsidy = 200 * COIN;
 	
 	if(nHeight < 1080)  
     {
-        nSubsidy = 2 * COIN;
+        nSubsidy = 10000 * COIN;
     }
 	else if(nHeight < 2160)  
     {
@@ -851,7 +851,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
     }
     else if(nHeight < 4320)   
     {
-        nSubsidy = 5 * COIN;
+        nSubsidy = 4 * COIN;
     }
 	else if(nHeight < 5400)   
     {
@@ -859,15 +859,19 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
     }
 	else if(nHeight < 6480)   
     {
-        nSubsidy = 11 * COIN;
+        nSubsidy = 16 * COIN;
     }
 	else if(nHeight < 7560)   
     {
-        nSubsidy = 14 * COIN;
+        nSubsidy = 32 * COIN;
     }
 	else if(nHeight < 8640)   
     {
-        nSubsidy = 17 * COIN;
+        nSubsidy = 64 * COIN;
+    }
+    else if(nHeight < 9720)
+    {
+        nSubsidy = 64 * COIN;
     }
 
     // Subsidy is cut in half every 4730400 blocks, which will occur approximately every 3 years
@@ -876,8 +880,8 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
     return nSubsidy + nFees;
 }
 
-static const int64 nTargetTimespan =  6 * 60 * 3 * 20; // digitalcoin: 6 hours
-static const int64 nTargetSpacing = 1 * 20; // digitalcoin: 20 seconds
+static const int64 nTargetTimespan =  6 * 60 * 3 * 20; // realcoin: 6 hours
+static const int64 nTargetSpacing = 1 * 30; // realcoin: 3 seconds
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 //
@@ -936,7 +940,7 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
         return pindexLast->nBits;
     }
 
-    // digitalcoin: This fixes an issue where a 51% attack can change difficulty at will.
+    // realcoin: This fixes an issue where a 51% attack can change difficulty at will.
     // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
     int blockstogoback = nInterval-1;
     if ((pindexLast->nHeight+1) != nInterval)
@@ -1208,7 +1212,7 @@ bool CTransaction::ConnectInputs(MapPrevTx inputs,
 {
     // Take over previous transactions' spent pointers
     // fBlock is true when this is called from AcceptBlock when a new best-block is added to the blockchain
-    // fMiner is true when called from the internal digitalcoin miner
+    // fMiner is true when called from the internal realcoin miner
     // ... both are false when called from CTransaction::AcceptToMemoryPool
     if (!IsCoinBase())
     {
@@ -1955,7 +1959,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
         string strMessage = _("Warning: Disk space is low");
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
-        uiInterface.ThreadSafeMessageBox(strMessage, "digitalcoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
+        uiInterface.ThreadSafeMessageBox(strMessage, "realcoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
         StartShutdown();
         return false;
     }
@@ -2033,21 +2037,21 @@ bool LoadBlockIndex(bool fAllowNew)
         // Genesis Block:
 
         // Genesis block
-        const char* pszTimestamp = "Digitalcoin, A Currency for a Digital Age";
+        const char* pszTimestamp = "Realcoin (REC), A Currency for the Real World!";
         CTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CBigNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
-        txNew.vout[0].nValue = 50 * COIN;
+        txNew.vout[0].nValue = 200 * COIN;
         txNew.vout[0].scriptPubKey = CScript() << ParseHex("04a5814813115273a109cff99907ba4a05d951873dae7acb6c973d0c9e7c88911a3dbc9aa600deac241b91707e7b4ffb30ad91c8e56e695a1ddf318592988afe0a") << OP_CHECKSIG;
         CBlock block;
         block.vtx.push_back(txNew);
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1367867384;
+        block.nTime    = 1370502000;//Thu, 06 Jun 2013 07:00:00 GMT
         block.nBits    = 0x1e0ffff0;
-        block.nNonce   = 672176;
+        block.nNonce   = 0;
 
         if (fTestNet)
         {
@@ -2059,8 +2063,9 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("%s\n", block.GetHash().ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-        
-		assert(block.hashMerkleRoot == uint256("0xecb2c595fff9f2364152c32027737007c5a4c60ec960cf93754b0211bc2a1501"));
+        printf("%d\n",  block.nNonce);
+
+        assert(block.hashMerkleRoot == uint256("0x01200a2e30a31f93ab9df7ff7a99ea03b548010ee7be8369a3250732e6030573"));
 
         // If genesis block hash does not match, then generate new genesis hash.
         if (false && block.GetHash() != hashGenesisBlock)
@@ -2406,7 +2411,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ascii, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-unsigned char pchMessageStart[4] = { 0xfb, 0xc0, 0xb6, 0xdb }; // digitalcoin: increase each by adding 2 to bitcoin's value.
+unsigned char pchMessageStart[4] = { 0xfb, 0xc0, 0xb6, 0xdb }; // realcoin: increase each by adding 2 to bitcoin's value.
 
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
@@ -3494,7 +3499,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey)
                 continue;
 
             // Transaction fee required depends on block size
-            // digitalcoind: Reduce the exempted free transactions to 500 bytes (from Bitcoin's 3000 bytes)
+            // realcoind: Reduce the exempted free transactions to 500 bytes (from Bitcoin's 3000 bytes)
             bool fAllowFree = (nBlockSize + nTxSize < 1500 || CTransaction::AllowFree(dPriority));
             int64 nMinFee = tx.GetMinFee(nBlockSize, fAllowFree, GMF_BLOCK);
 

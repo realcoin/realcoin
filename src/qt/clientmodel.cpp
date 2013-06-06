@@ -163,7 +163,7 @@ int ClientModel::getHashrate() const
     return (boost::int64_t)dHashesPerSec;
 }
 
-// digitalcoin: copied from bitcoinrpc.cpp.
+// realcoin: copied from bitcoinrpc.cpp.
 double ClientModel::GetDifficulty() const
 {
     // Floating point number that is a multiple of the minimum difficulty,

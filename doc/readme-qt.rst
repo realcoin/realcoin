@@ -1,4 +1,4 @@
-digitalcoin: Qt4 GUI for digitalcoin
+realcoin: Qt4 GUI for realcoin
 ================================
 
 Build instructions
