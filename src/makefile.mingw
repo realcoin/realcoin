@@ -8,7 +8,6 @@ USE_IPV6:=1
 BOOST_SUFFIX?=-mgw47-mt-sd-1_53
 
 INCLUDEPATHS= \
-<<<<<<< HEAD
  -I"E:\realcoin-dev\deps\boost_1_53_0" \
  -I"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
  -I"E:\realcoin-dev\deps\openssl-1.0.1e\include"
@@ -17,7 +16,7 @@ LIBPATHS= \
  -L"E:\realcoin-dev\deps\boost_1_53_0\stage\lib" \
  -L"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
  -L"E:\realcoin-dev\deps\openssl-1.0.1e"
-=======
+
  -I"C:\realcoin-dev\deps\boost_1_53_0" \
  -I"C:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
  -I"C:\realcoin-dev\deps\openssl-1.0.1e\include"
@@ -26,7 +25,7 @@ LIBPATHS= \
  -L"C:\realcoin-dev\deps\boost_1_53_0\stage\lib" \
  -L"C:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
  -L"C:\realcoin-dev\deps\openssl-1.0.1e"
->>>>>>> c63a4542a0791f8e8909f221e6045d0d73c15683
+
 
 LIBS= \
  -l boost_system-mgw47-mt-s-1_53 \
