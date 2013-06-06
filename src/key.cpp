@@ -1,4 +1,6 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2011-2012 Litecoin Developers
+// Copyright (c) 2013 digitalcoin Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -48,7 +50,7 @@ err:
 
 // Perform ECDSA key recovery (see SEC1 4.1.6) for curves over (mod p)-fields
 // recid selects which key is recovered
-// if check is non-zero, additional checks are performed
+// if check is nonzero, additional checks are performed
 int ECDSA_SIG_recover_key_GFp(EC_KEY *eckey, ECDSA_SIG *ecsig, const unsigned char *msg, int msglen, int recid, int check)
 {
     if (!eckey) return 0;
@@ -186,24 +188,10 @@ void CKey::MakeNewKey(bool fCompressed)
 bool CKey::SetPrivKey(const CPrivKey& vchPrivKey)
 {
     const unsigned char* pbegin = &vchPrivKey[0];
-    if (d2i_ECPrivateKey(&pkey, &pbegin, vchPrivKey.size()))
-    {
-        // In testing, d2i_ECPrivateKey can return true
-        // but fill in pkey with a key that fails
-        // EC_KEY_check_key, so:
-        if (EC_KEY_check_key(pkey))
-        {
-            fSet = true;
-            return true;
-        }
-    }
-    // If vchPrivKey data is bad d2i_ECPrivateKey() can
-    // leave pkey in a state where calling EC_KEY_free()
-    // crashes. To avoid that, set pkey to NULL and
-    // leak the memory (a leak is better than a crash)
-    pkey = NULL;
-    Reset();
-    return false;
+    if (!d2i_ECPrivateKey(&pkey, &pbegin, vchPrivKey.size()))
+        return false;
+    fSet = true;
+    return true;
 }
 
 bool CKey::SetSecret(const CSecret& vchSecret, bool fCompressed)
@@ -259,16 +247,12 @@ CPrivKey CKey::GetPrivKey() const
 bool CKey::SetPubKey(const CPubKey& vchPubKey)
 {
     const unsigned char* pbegin = &vchPubKey.vchPubKey[0];
-    if (o2i_ECPublicKey(&pkey, &pbegin, vchPubKey.vchPubKey.size()))
-    {
-        fSet = true;
-        if (vchPubKey.vchPubKey.size() == 33)
-            SetCompressedPubKey();
-        return true;
-    }
-    pkey = NULL;
-    Reset();
-    return false;
+    if (!o2i_ECPublicKey(&pkey, &pbegin, vchPubKey.vchPubKey.size()))
+        return false;
+    fSet = true;
+    if (vchPubKey.vchPubKey.size() == 33)
+        SetCompressedPubKey();
+    return true;
 }
 
 CPubKey CKey::GetPubKey() const
@@ -393,9 +377,6 @@ bool CKey::VerifyCompact(uint256 hash, const std::vector<unsigned char>& vchSig)
 bool CKey::IsValid()
 {
     if (!fSet)
-        return false;
-
-    if (!EC_KEY_check_key(pkey))
         return false;
 
     bool fCompr;

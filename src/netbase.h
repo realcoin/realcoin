@@ -1,4 +1,6 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2011-2012 Litecoin Developers
+// Copyright (c) 2013 digitalcoin Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_NETBASE_H
@@ -50,9 +52,9 @@ class CNetAddr
         bool IsRFC1918() const; // IPv4 private networks (10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12)
         bool IsRFC3849() const; // IPv6 documentation address (2001:0DB8::/32)
         bool IsRFC3927() const; // IPv4 autoconfig (169.254.0.0/16)
-        bool IsRFC3964() const; // IPv6 6to4 tunnelling (2002::/16)
+        bool IsRFC3964() const; // IPv6 6to4 tunneling (2002::/16)
         bool IsRFC4193() const; // IPv6 unique local (FC00::/15)
-        bool IsRFC4380() const; // IPv6 Teredo tunnelling (2001::/32)
+        bool IsRFC4380() const; // IPv6 Teredo tunneling (2001::/32)
         bool IsRFC4843() const; // IPv6 ORCHID (2001:10::/28)
         bool IsRFC4862() const; // IPv6 autoconfig (FE80::/64)
         bool IsRFC6052() const; // IPv6 well-known prefix (64:FF9B::/96)
@@ -66,7 +68,7 @@ class CNetAddr
         enum Network GetNetwork() const;
         std::string ToString() const;
         std::string ToStringIP() const;
-        unsigned int GetByte(int n) const;
+        int GetByte(int n) const;
         uint64 GetHash() const;
         bool GetInAddr(struct in_addr* pipv4Addr) const;
         std::vector<unsigned char> GetGroup() const;
@@ -133,15 +135,13 @@ class CService : public CNetAddr
             )
 };
 
-typedef std::pair<CService, int> proxyType;
-
 enum Network ParseNetwork(std::string net);
 void SplitHostPort(std::string in, int &portOut, std::string &hostOut);
 bool SetProxy(enum Network net, CService addrProxy, int nSocksVersion = 5);
-bool GetProxy(enum Network net, proxyType &proxyInfoOut);
+bool GetProxy(enum Network net, CService &addrProxy);
 bool IsProxy(const CNetAddr &addr);
 bool SetNameProxy(CService addrProxy, int nSocksVersion = 5);
-bool HaveNameProxy();
+bool GetNameProxy();
 bool LookupHost(const char *pszName, std::vector<CNetAddr>& vIP, unsigned int nMaxSolutions = 0, bool fAllowLookup = true);
 bool LookupHostNumeric(const char *pszName, std::vector<CNetAddr>& vIP, unsigned int nMaxSolutions = 0);
 bool Lookup(const char *pszName, CService& addr, int portDefault = 0, bool fAllowLookup = true);

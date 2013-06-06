@@ -1,11 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2011-2012 Litecoin Developers
+// Copyright (c) 2013 digitalcoin Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "netbase.h"
 #include "util.h"
-#include "sync.h"
 
 #ifndef WIN32
 #include <sys/fcntl.h>
@@ -17,9 +18,9 @@
 using namespace std;
 
 // Settings
+typedef std::pair<CService, int> proxyType;
 static proxyType proxyInfo[NET_MAX];
 static proxyType nameproxyInfo;
-static CCriticalSection cs_proxyInfos;
 int nConnectTimeout = 5000;
 bool fNameLookup = false;
 
@@ -247,7 +248,7 @@ bool static Socks5(string strDest, int port, SOCKET& hSocket)
     string strSocks5("\5\1");
     strSocks5 += '\000'; strSocks5 += '\003';
     strSocks5 += static_cast<char>(std::min((int)strDest.size(), 255));
-    strSocks5 += strDest;
+    strSocks5 += strDest; 
     strSocks5 += static_cast<char>((port >> 8) & 0xFF);
     strSocks5 += static_cast<char>((port >> 0) & 0xFF);
     ret = send(hSocket, strSocks5.c_str(), strSocks5.size(), MSG_NOSIGNAL);
@@ -433,17 +434,15 @@ bool SetProxy(enum Network net, CService addrProxy, int nSocksVersion) {
         return false;
     if (nSocksVersion != 0 && !addrProxy.IsValid())
         return false;
-    LOCK(cs_proxyInfos);
     proxyInfo[net] = std::make_pair(addrProxy, nSocksVersion);
     return true;
 }
 
-bool GetProxy(enum Network net, proxyType &proxyInfoOut) {
+bool GetProxy(enum Network net, CService &addrProxy) {
     assert(net >= 0 && net < NET_MAX);
-    LOCK(cs_proxyInfos);
     if (!proxyInfo[net].second)
         return false;
-    proxyInfoOut = proxyInfo[net];
+    addrProxy = proxyInfo[net].first;
     return true;
 }
 
@@ -452,27 +451,16 @@ bool SetNameProxy(CService addrProxy, int nSocksVersion) {
         return false;
     if (nSocksVersion != 0 && !addrProxy.IsValid())
         return false;
-    LOCK(cs_proxyInfos);
     nameproxyInfo = std::make_pair(addrProxy, nSocksVersion);
     return true;
 }
 
-bool GetNameProxy(proxyType &nameproxyInfoOut) {
-    LOCK(cs_proxyInfos);
-    if (!nameproxyInfo.second)
-        return false;
-    nameproxyInfoOut = nameproxyInfo;
-    return true;
-}
-
-bool HaveNameProxy() {
-    LOCK(cs_proxyInfos);
+bool GetNameProxy() {
     return nameproxyInfo.second != 0;
 }
 
 bool IsProxy(const CNetAddr &addr) {
-    LOCK(cs_proxyInfos);
-    for (int i = 0; i < NET_MAX; i++) {
+    for (int i=0; i<NET_MAX; i++) {
         if (proxyInfo[i].second && (addr == (CNetAddr)proxyInfo[i].first))
             return true;
     }
@@ -481,10 +469,10 @@ bool IsProxy(const CNetAddr &addr) {
 
 bool ConnectSocket(const CService &addrDest, SOCKET& hSocketRet, int nTimeout)
 {
-    proxyType proxy;
+    const proxyType &proxy = proxyInfo[addrDest.GetNetwork()];
 
     // no proxy needed
-    if (!GetProxy(addrDest.GetNetwork(), proxy))
+    if (!proxy.second)
         return ConnectSocketDirectly(addrDest, hSocketRet, nTimeout);
 
     SOCKET hSocket = INVALID_SOCKET;
@@ -492,7 +480,7 @@ bool ConnectSocket(const CService &addrDest, SOCKET& hSocketRet, int nTimeout)
     // first connect to proxy server
     if (!ConnectSocketDirectly(proxy.first, hSocket, nTimeout))
         return false;
-
+ 
     // do socks negotiation
     switch (proxy.second) {
     case 4:
@@ -518,22 +506,19 @@ bool ConnectSocketByName(CService &addr, SOCKET& hSocketRet, const char *pszDest
     SplitHostPort(string(pszDest), port, strDest);
 
     SOCKET hSocket = INVALID_SOCKET;
-
-    proxyType nameproxy;
-    GetNameProxy(nameproxy);
-
-    CService addrResolved(CNetAddr(strDest, fNameLookup && !nameproxy.second), port);
+    CService addrResolved(CNetAddr(strDest, fNameLookup && !nameproxyInfo.second), port);
     if (addrResolved.IsValid()) {
         addr = addrResolved;
         return ConnectSocket(addr, hSocketRet, nTimeout);
     }
     addr = CService("0.0.0.0:0");
-    if (!nameproxy.second)
+    if (!nameproxyInfo.second)
         return false;
-    if (!ConnectSocketDirectly(nameproxy.first, hSocket, nTimeout))
+    if (!ConnectSocketDirectly(nameproxyInfo.first, hSocket, nTimeout))
         return false;
 
-    switch(nameproxy.second) {
+    switch(nameproxyInfo.second)
+    {
         default:
         case 4: return false;
         case 5:
@@ -616,7 +601,7 @@ CNetAddr::CNetAddr(const std::string &strIp, bool fAllowLookup)
         *this = vIP[0];
 }
 
-unsigned int CNetAddr::GetByte(int n) const
+int CNetAddr::GetByte(int n) const
 {
     return ip[15-n];
 }
@@ -634,8 +619,8 @@ bool CNetAddr::IsIPv6() const
 bool CNetAddr::IsRFC1918() const
 {
     return IsIPv4() && (
-        GetByte(3) == 10 ||
-        (GetByte(3) == 192 && GetByte(2) == 168) ||
+        GetByte(3) == 10 || 
+        (GetByte(3) == 192 && GetByte(2) == 168) || 
         (GetByte(3) == 172 && (GetByte(2) >= 16 && GetByte(2) <= 31)));
 }
 
@@ -719,7 +704,7 @@ bool CNetAddr::IsMulticast() const
 
 bool CNetAddr::IsValid() const
 {
-    // Cleanup 3-byte shifted addresses caused by garbage in size field
+    // Clean up 3-byte shifted addresses caused by garbage in size field
     // of addr messages from versions before 0.2.9 checksum.
     // Two consecutive addr messages look like this:
     // header20 vectorlen3 addr26 addr26 addr26 header20 vectorlen3 addr26 addr26 addr26...
@@ -868,13 +853,13 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
         nClass = NET_IPV4;
         nStartByte = 12;
     }
-    // for 6to4 tunnelled addresses, use the encapsulated IPv4 address
+    // for 6to4 tunneled addresses, use the encapsulated IPv4 address
     else if (IsRFC3964())
     {
         nClass = NET_IPV4;
         nStartByte = 2;
     }
-    // for Teredo-tunnelled IPv6 addresses, use the encapsulated IPv4 address
+    // for Teredo-tunneled IPv6 addresses, use the encapsulated IPv4 address
     else if (IsRFC4380())
     {
         vchRet.push_back(NET_IPV4);
@@ -971,7 +956,7 @@ int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const
         default:         return REACH_DEFAULT;
         case NET_TEREDO: return REACH_TEREDO;
         case NET_IPV4:   return REACH_IPV4;
-        case NET_IPV6:   return fTunnel ? REACH_IPV6_WEAK : REACH_IPV6_STRONG; // only prefer giving our IPv6 address if it's not tunnelled
+        case NET_IPV6:   return fTunnel ? REACH_IPV6_WEAK : REACH_IPV6_STRONG; // only prefer giving our IPv6 address if it's not tunneled
         }
     case NET_TOR:
         switch(ourNet) {
@@ -1152,7 +1137,7 @@ std::vector<unsigned char> CService::GetKey() const
 
 std::string CService::ToStringPort() const
 {
-    return strprintf("%u", port);
+    return strprintf("%i", port);
 }
 
 std::string CService::ToStringIPPort() const

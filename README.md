@@ -1,38 +1,36 @@
+digitalcoin 0.1 BETA
 
-DotCoin official development tree
+Copyright (c) 2009-2012 Bitcoin Developers
+Copyright (c) 2011-2012 Litecoin Developers
+Copyright (c) 2011-2012 Digitalcoin Developers
+Distributed under the MIT/X11 software license, see the accompanying
+file COPYING or http://www.opensource.org/licenses/mit-license.php.
+This product includes software developed by the OpenSSL Project for use in
+the OpenSSL Toolkit (http://www.openssl.org/).  This product includes
+cryptographic software written by Eric Young (eay@cryptsoft.com).
 
-DotCoin - a hybrid scrypt PoW + PoS based cryptocurrency.
+What It Is:
+-A digital currency
+-A means to store value
+-A fast method to send and receive money
+-Transparent and open source
+-Anonymous
 
-* 5 minute PoW block targets
-* 5 minute PoS block targets
-* The PoW subsidy halves every x64 multiply of difficulty
-* Maximum PoW reward is 100 coins
-* ~ 8 billion total coins
+Transaction Specifications:
+-Irreversible value transfer
+-Transactions are sent instantly and are confirmed in minutes
+-Double spending prevented by the blockchain
+-Miners process transactions and create new currency through mining
+-Transactions can be received at any time
 
-Development process
-===========================
+Technical Specifications:
+    Algorithm: Scrypt
+    Block Time: 20 seconds  - Enough time to minimize orphans but still provide almost instant transactions.
+    Difficulty: Starts at 0.00024414 – Retargets every 6 hours – It will take 6-8 difficulty adjustments (or ~13000 blocks) to reach desired difficulty of 1. It retargets quickly to adjust to the environment, so stability should not be much of an issue. Miners should also find the system adjusts fast enough to be up to date, but not so fast as to make the environment unpredictable and unstable.
+    Reward: 20 coins per block, halved every 3 years – Consistent rewards encourage miners to support the network long term. Loyalty is rewarded. This also reduces volatility by setting the foundation on a stable path. Due to the fair launch policy, block rewards will grow in value until they reach the 20 coins per block reward. More details below.
+    Maximum coins: 200,000,000
 
-Developers work in their own trees, then submit pull requests when
-they think their feature or bug fix is ready.
+bitcointalk thread: https://bitcointalk.org/index.php?topic=209508.0
 
-The patch will be accepted if there is broad consensus that it is a
-good thing.  Developers should expect to rework and resubmit patches
-if they don't match the project's coding conventions (see coding.txt)
-or are controversial.
+Copyright digitalcoin.co 2013
 
-The master branch is regularly built and tested, but is not guaranteed
-to be completely stable. Tags are regularly created to indicate new
-official, stable release versions of DotCoin.
-
-Feature branches are created when there are major new features being
-worked on by several people.
-
-From time to time a pull request will become outdated. If this occurs, and
-the pull is no longer automatically mergeable; a comment on the pull will
-be used to issue a warning of closure. The pull will be closed 15 days
-after the warning if action is not taken by the author. Pull requests closed
-in this manner will have their corresponding issue labeled 'stagnant'.
-
-Issues with no commits will be given a similar warning, and closed after
-15 days from their last activity. Issues closed in this manner will be 
-labeled 'stale'.

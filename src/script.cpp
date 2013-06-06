@@ -1,5 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2011-2012 Litecoin Developers
+// Copyright (c) 2013 digitalcoin Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <boost/foreach.hpp>
@@ -18,6 +20,9 @@ using namespace boost;
 
 bool CheckSig(vector<unsigned char> vchSig, vector<unsigned char> vchPubKey, CScript scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType);
 
+
+
+typedef vector<unsigned char> valtype;
 static const valtype vchFalse(0);
 static const valtype vchZero(0);
 static const valtype vchTrue(1, 1);
@@ -51,29 +56,12 @@ bool CastToBool(const valtype& vch)
     return false;
 }
 
-//
-// WARNING: This does not work as expected for signed integers; the sign-bit
-// is left in place as the integer is zero-extended. The correct behavior
-// would be to move the most significant bit of the last byte during the
-// resize process. MakeSameSize() is currently only used by the disabled
-// opcodes OP_AND, OP_OR, and OP_XOR.
-//
 void MakeSameSize(valtype& vch1, valtype& vch2)
 {
     // Lengthen the shorter one
     if (vch1.size() < vch2.size())
-        // PATCH:
-        // +unsigned char msb = vch1[vch1.size()-1];
-        // +vch1[vch1.size()-1] &= 0x7f;
-        //  vch1.resize(vch2.size(), 0);
-        // +vch1[vch1.size()-1] = msb;
         vch1.resize(vch2.size(), 0);
     if (vch2.size() < vch1.size())
-        // PATCH:
-        // +unsigned char msb = vch2[vch2.size()-1];
-        // +vch2[vch2.size()-1] &= 0x7f;
-        //  vch2.resize(vch1.size(), 0);
-        // +vch2[vch2.size()-1] = msb;
         vch2.resize(vch1.size(), 0);
 }
 
@@ -677,11 +665,6 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, co
                 }
                 break;
 
-                //
-                // WARNING: These disabled opcodes exhibit unexpected behavior
-                // when used on signed integers due to a bug in MakeSameSize()
-                // [see definition of MakeSameSize() above].
-                //
                 case OP_AND:
                 case OP_OR:
                 case OP_XOR:
@@ -691,7 +674,7 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, co
                         return false;
                     valtype& vch1 = stacktop(-2);
                     valtype& vch2 = stacktop(-1);
-                    MakeSameSize(vch1, vch2); // <-- NOT SAFE FOR SIGNED VALUES
+                    MakeSameSize(vch1, vch2);
                     if (opcode == OP_AND)
                     {
                         for (unsigned int i = 0; i < vch1.size(); i++)
@@ -1089,7 +1072,7 @@ uint256 SignatureHash(CScript scriptCode, const CTransaction& txTo, unsigned int
     }
     else if ((nHashType & 0x1f) == SIGHASH_SINGLE)
     {
-        // Only lock-in the txout payee at same index as txin
+        // Only lockin the txout payee at same index as txin
         unsigned int nOut = nIn;
         if (nOut >= txTmp.vout.size())
         {
@@ -1146,7 +1129,8 @@ public:
         return false;
     }
 
-    void Set(uint256 hash, const std::vector<unsigned char>& vchSig, const std::vector<unsigned char>& pubKey)
+    void
+    Set(uint256 hash, const std::vector<unsigned char>& vchSig, const std::vector<unsigned char>& pubKey)
     {
         // DoS prevention: limit cache size to less than 10MB
         // (~200 bytes per cache entry times 50,000 entries)
@@ -1290,7 +1274,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 if (!script2.GetOp(pc2, opcode2, vch2))
                     break;
                 // Normal situation is to fall through
-                // to other if/else statements
+                // to other if/else statments
             }
 
             if (opcode2 == OP_PUBKEY)
@@ -1363,7 +1347,7 @@ bool SignN(const vector<valtype>& multisigdata, const CKeyStore& keystore, uint2
 // Sign scriptPubKey with private keys stored in keystore, given transaction hash and hash type.
 // Signatures are returned in scriptSigRet (or returns false if scriptPubKey can't be signed),
 // unless whichTypeRet is TX_SCRIPTHASH, in which case scriptSigRet is the redemption script.
-// Returns false if scriptPubKey could not be completely satisfied.
+// Returns false if scriptPubKey could not be completely satisified.
 //
 bool Solver(const CKeyStore& keystore, const CScript& scriptPubKey, uint256 hash, int nHashType,
                   CScript& scriptSigRet, txnouttype& whichTypeRet)
@@ -1645,7 +1629,6 @@ bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTrans
     assert(nIn < txTo.vin.size());
     CTxIn& txin = txTo.vin[nIn];
     assert(txin.prevout.n < txFrom.vout.size());
-    assert(txin.prevout.hash == txFrom.GetHash());
     const CTxOut& txout = txFrom.vout[txin.prevout.n];
 
     return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType);
@@ -1752,7 +1735,7 @@ static CScript CombineSignatures(CScript scriptPubKey, const CTransaction& txTo,
             return PushAll(sigs1);
         else
         {
-            // Recur to combine:
+            // Recurse to combine:
             valtype spk = sigs1.back();
             CScript pubKey2(spk.begin(), spk.end());
 
@@ -1830,7 +1813,7 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
             return 0;
     }
 
-    /// ... and return its opcount:
+    /// ... and return it's opcount:
     CScript subscript(data.begin(), data.end());
     return subscript.GetSigOpCount(true);
 }
