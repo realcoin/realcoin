@@ -1,13 +1,13 @@
 
-NovaCoin official development tree
+DotCoin official development tree
 
-NovaCoin - a hybrid scrypt PoW + PoS based cryptocurrency.
+DotCoin - a hybrid scrypt PoW + PoS based cryptocurrency.
 
-* 10 minute PoW block targets
-* 10 minute PoS block targets
+* 5 minute PoW block targets
+* 5 minute PoS block targets
 * The PoW subsidy halves every x64 multiply of difficulty
 * Maximum PoW reward is 100 coins
-* ~ 2 billion total coins
+* ~ 8 billion total coins
 
 Development process
 ===========================
@@ -22,7 +22,7 @@ or are controversial.
 
 The master branch is regularly built and tested, but is not guaranteed
 to be completely stable. Tags are regularly created to indicate new
-official, stable release versions of NovaCoin.
+official, stable release versions of DotCoin.
 
 Feature branches are created when there are major new features being
 worked on by several people.

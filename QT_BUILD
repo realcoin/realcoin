@@ -1,0 +1,19 @@
+Compiling under ubuntu 12.04:
+
+sudo apt-get install qt4-dev-tools qt4-doc qt4-qtconfig qt4-demos qt4-designer
+
+cd atomcoin/src
+sudo make -f makefile.unix USE_UPNP=1 USE_QRCODE=1 USE_DBUS=1 FIRST_CLASS_MESSAGE=1 
+
+Install UPNP QRCODE by your self, following the instructions in src/makefile.unix
+
+sudo qmake USE_UPNP=1 USE_QRCODE=1 USE_DBUS=1 FIRST_CLASS_MESSAGE=1 
+sudo make
+
+Compile windows exe: https://bitcointalk.org/index.php?topic=84984.0
+sudo apt-get install python-vm-builder qemu-kvm apt-cacher ruby
+sudo service apt-cacher start
+sudo vi /etc/default/apt-cacher #change the autostart line from 0 to 1
+sudo git clone https://github.com/devrandom/gitian-builder
+
+

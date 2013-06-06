@@ -1,0 +1,2 @@
+debian/bin/dotcoind usr/bin
+src/dotcoind usr/lib/dotcoin

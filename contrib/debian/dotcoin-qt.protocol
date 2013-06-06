@@ -1,0 +1,11 @@
+[Protocol]
+exec=dotcoin-qt '%u'
+protocol=dotcoin
+input=none
+output=none
+helper=true
+listing=
+reading=false
+writing=false
+makedir=false
+deleting=false

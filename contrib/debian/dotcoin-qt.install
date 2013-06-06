@@ -1,0 +1,5 @@
+dotcoin-qt usr/bin
+share/pixmaps/dotcoin32.xpm usr/share/pixmaps
+share/pixmaps/dotcoin80.xpm usr/share/pixmaps
+debian/dotcoin-qt.desktop usr/share/applications
+debian/dotcoin-qt.protocol usr/share/kde4/services/
