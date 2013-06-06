@@ -5,11 +5,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 // Listen port: 20001
 // RPC Port: 20002
-// Block Time: 20 seconds
-// Confirmations: 5
+// Block Time: 30 seconds
+// Confirmations: 3
 // Difficulty: Retarget every 6 hours
-// Reward: 20 coins per block, halved every 3 years (4,730,400 blocks)
-// 200 million total coins
+// Reward: 200 coins per block, halved every 4.5 years (4,730,400 blocks)
+// 2 billion total coins
 
 #include "checkpoints.h"
 #include "db.h"
@@ -881,7 +881,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 }
 
 static const int64 nTargetTimespan =  6 * 60 * 3 * 20; // realcoin: 6 hours
-static const int64 nTargetSpacing = 1 * 30; // realcoin: 3 seconds
+static const int64 nTargetSpacing = 1 * 30; // realcoin: 30 seconds
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 //
