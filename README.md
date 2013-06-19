@@ -55,12 +55,12 @@ Technical Specifications:
 	
     Reward: 200 coins per block, halved every 3 years. Consistent rewards encourage miners to support the network long term. Loyalty is rewarded. This also reduces volatility by setting the foundation on a stable path. Due to the fair launch policy, block rewards will grow in value until they reach the 20 coins per block reward. More details below.
 	
-    Maximum coins: 20 billion
+    Maximum coins: approx 1.9 billion
 	
 	
 	
 
-bitcointalk thread: https://bitcointalk.org/index.php?topic=228293
+bitcointalk thread: https://bitcointalk.org/index.php?topic=227149.0
 
 
 Copyright realcoin.org 2013
