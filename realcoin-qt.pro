@@ -21,6 +21,8 @@ BDB_INCLUDE_PATH=E:\realcoin-dev\deps\db-4.8.30.NC\build_unix
 BDB_LIB_PATH=E:\realcoin-dev\deps\db-4.8.30.NC\build_unix
 OPENSSL_INCLUDE_PATH=E:\realcoin-dev\deps\openssl-1.0.1e\include
 OPENSSL_LIB_PATH=E:\realcoin-dev\deps\openssl-1.0.1e
+MINIUPNPC_INCLUDE_PATH=E:\realcoin-dev\deps\miniupnpc-1.6
+MINIUPNPC_LIB_PATH=E:\realcoin-dev\deps\upnpc-exe-win32-20121009
 
 OBJECTS_DIR = build
 MOC_DIR = build

@@ -9,12 +9,14 @@ INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"E:\realcoin-dev\deps\boost_1_53_0" \
  -I"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
- -I"E:\realcoin-dev\deps\openssl-1.0.1e\include"
+ -I"E:\realcoin-dev\deps\openssl-1.0.1e\include"\
+ -I"E:\realcoin-dev\deps\miniupnpc-1.6"
 
 LIBPATHS= \
  -L"E:\realcoin-dev\deps\boost_1_53_0\stage\lib" \
  -L"E:\realcoin-dev\deps\db-4.8.30.NC\build_unix" \
- -L"E:\realcoin-dev\deps\openssl-1.0.1e"
+ -L"E:\realcoin-dev\deps\openssl-1.0.1e"\
+ -L"E:\realcoin-dev\deps\upnpc-exe-win32-20121009"
 
 LIBS= \
  -l boost_system-mgw46-mt-sd-1_53 \
@@ -35,7 +37,8 @@ TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 ifndef USE_UPNP
 	override USE_UPNP = -
 endif
-ifneq (${USE_UPNP}, -)
+ifdef USE_UPNP
+ LIBPATHS += -L"E:\realcoin-dev\deps\upnpc-exe-win32-20121009"
  LIBS += -l miniupnpc -l iphlpapi
  DEFS += -DSTATICLIB -DUSE_UPNP=$(USE_UPNP)
 endif
