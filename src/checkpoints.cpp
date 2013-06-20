@@ -46,7 +46,7 @@ namespace Checkpoints
         MapCheckpoints::const_iterator i = mapCheckpoints.find(nHeight);
         if (i == mapCheckpoints.end()) return true;
         //return hash == i->second;
-        //return true;
+        return true;
     }
 
     int GetTotalBlocksEstimate()
