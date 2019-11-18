@@ -4,7 +4,7 @@ realcoin 0.1 BETA
 
 Copyright (c) 2009-2012 Bitcoin Developers
 Copyright (c) 2011-2012 Litecoin Developers
-Copyright (c) 2011-2013 RealCoin Developers
+Copyright (c)  2019.17.03
 Distributed under the MIT/X11 software license, see the accompanying
 file COPYING or http://www.opensource.org/licenses/mit-license.php.
 This product includes software developed by the OpenSSL Project for use in
@@ -55,13 +55,13 @@ Technical Specifications:
 	
     Reward: 200 coins per block, halved every 3 years. Consistent rewards encourage miners to support the network long term. Loyalty is rewarded. This also reduces volatility by setting the foundation on a stable path. Due to the fair launch policy, block rewards will grow in value until they reach the 20 coins per block reward. More details below.
 	
-    Maximum coins: approx 1.9 billion
+ aximum coins: approx 1000000000000.000
 	
 	
 	
 
-bitcointalk thread: https://bitcointalk.org/index.php?topic=227149.0
+Tema:  Etherscan.io
 
-
+0x1874edb62578700ccec7d6c2bfb4395187618d9b5cb0734999d30c134243351a
 Copyright realcoin.org 2013
 
